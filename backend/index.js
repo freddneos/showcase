@@ -1,5 +1,11 @@
+/*
+    Projeto de estudo mean stack com cenário Real e aplicável
+    Empresa : Casas Pedro (Rio de janeiro - Brasil)
+    Autor : Frederico Bezerra (NeosDev)
+*/
 const express = require('express');
 const app = express();
+//git ignore , keys de acesso ao banco
 const keys = require('./keys');
 const bodyParser = require('body-parser')
 const sql = require('mssql');
@@ -13,15 +19,20 @@ sql.connect(connStr)
     .then(conn => global.conn = conn)
     .catch(err => console.log('Erro de banco ' + err));
 
+//uso do body parser
+//usro do cors
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors())
 
 const router = express.Router();
 
+//main route , rota principal
 router.get('/' , (req ,res) => res.json({message:'Funcionando!'}));
 app.use('/' , router);
 
+
+//função que executa a query
 function execQuery(cQuery,res){
     global.conn.request()
         .query(cQuery)
@@ -29,6 +40,7 @@ function execQuery(cQuery,res){
         .catch( err => res.json(err));
 
 }
+//rota de listagem de dados da query , parametro de id opcional para ja trazer produto especifico
 router.get('/produtos/:id?' , (req,res) => {
     var query =  " SELECT   B1_MSBLQL    AS Bloqueado,  "
         query += " RTRIM(LTRIM(B1_COD))  AS Codigo,     " 
@@ -43,8 +55,8 @@ router.get('/produtos/:id?' , (req,res) => {
         
     execQuery(query ,res);
 })
-
-router.get('/produtos/like/:desc?' , (req,res) => {
+//Rota de busca por descrição o parte dela, parametro obrigatório
+router.get('/produtos/like/:desc' , (req,res) => {
     var query =  " SELECT   B1_MSBLQL    AS Bloqueado,  "
         query += " RTRIM(LTRIM(B1_COD))  AS Codigo,     " 
         query += " RTRIM(LTRIM(B1_DESC)) AS Descricao , "
@@ -59,7 +71,6 @@ router.get('/produtos/like/:desc?' , (req,res) => {
     execQuery(query ,res);
 })
 
-
-
+//porta que o server vai escutar
 app.listen(port);
 console.log('API no Ar')
